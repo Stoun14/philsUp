@@ -7,7 +7,7 @@ use App\Repository\MediaRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: MediaRepository::class)]
-#[ApiResource]
+#[ApiResource(collectionOperations:["post"], itemOperations:["get", "delete"])]
 class Media
 {
     #[ORM\Id]
