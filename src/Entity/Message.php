@@ -2,15 +2,16 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
-use App\Repository\MessageRepository;
 use DateTime;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\MessageRepository;
+use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: MessageRepository::class)]
-#[ApiResource(collectionOperations:["get", "post"], itemOperations:["put", "delete"])]
+#[ApiResource(collectionOperations:["get", "post"], itemOperations:["put", "delete"], normalizationContext:["groups"=>["read"]], denormalizationContext:["groups"=>["write"]])]
 class Message
 {
     #[ORM\Id]
@@ -18,10 +19,12 @@ class Message
     #[ORM\Column(type: 'integer')]
     private $id;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(["read", "write"])]
     private $image;
 
     #[ORM\Column(type: 'text')]
+    #[Groups(["read", "write"])]
     private $content;
 
     #[ORM\OneToMany(mappedBy: 'message', targetEntity: Like::class)]
@@ -34,16 +37,20 @@ class Message
     private $media;
 
     #[ORM\Column(type: 'integer')]
+    #[Groups(["read", "write"])]
     private $count_like;
 
     #[ORM\Column(type: 'datetime')]
+    #[Groups(["read"])]
     private $create_at;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
+    #[Groups(["read"])]
     private $updated_at;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'messages')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(["read", "write"])]
     private $user;
 
     public function __construct()

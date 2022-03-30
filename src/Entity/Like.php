@@ -2,13 +2,14 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
-use App\Repository\LikeRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\LikeRepository;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: LikeRepository::class)]
 #[ORM\Table(name: '`like`')]
-#[ApiResource(collectionOperations:["get", "post"], itemOperations:["delete"])]
+#[ApiResource(collectionOperations:["get", "post"], itemOperations:["delete"], normalizationContext:["groups"=>["read"]], denormalizationContext:["groups"=>["write"]])]
 class Like
 {
     #[ORM\Id]
@@ -18,10 +19,12 @@ class Like
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'likes')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(["read", "write"])]
     private $user;
 
     #[ORM\ManyToOne(targetEntity: Message::class, inversedBy: 'likes')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(["read", "write"])]
     private $message;
 
     public function getId(): ?int

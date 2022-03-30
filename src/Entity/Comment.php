@@ -2,13 +2,14 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
-use App\Repository\CommentRepository;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\CommentRepository;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
-#[ApiResource(collectionOperations:["get", "post"], itemOperations:["patch", "delete"])]
+#[ApiResource(collectionOperations:["get", "post"], itemOperations:["put", "delete"], normalizationContext:["groups"=>["read"]], denormalizationContext:["groups"=>["write"]])]
 class Comment
 {
     #[ORM\Id]
@@ -17,20 +18,25 @@ class Comment
     private $id;
 
     #[ORM\Column(type: 'text')]
+    #[Groups(["read", "write"])]
     private $content;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'comments')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(["read", "write"])]
     private $user;
 
     #[ORM\ManyToOne(targetEntity: Message::class, inversedBy: 'comments')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(["read", "write"])]
     private $message;
 
     #[ORM\Column(type: 'datetime')]
+    #[Groups(["read"])]
     private $created_at;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
+    #[Groups(["read"])]
     private $updated_at;
 
     public function __construct()

@@ -2,12 +2,13 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
-use App\Repository\MediaRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\MediaRepository;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: MediaRepository::class)]
-#[ApiResource(collectionOperations:["post"], itemOperations:["get", "delete"])]
+#[ApiResource(collectionOperations:["post"], itemOperations:["get", "delete"], normalizationContext:["groups"=>["read"]], denormalizationContext:["groups"=>["write"]])]
 class Media
 {
     #[ORM\Id]
@@ -16,10 +17,12 @@ class Media
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(["read", "write"])]
     private $title;
 
     #[ORM\ManyToOne(targetEntity: Message::class, inversedBy: 'media')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(["read", "write"])]
     private $message;
 
     public function getId(): ?int
