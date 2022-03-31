@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\Collection;
@@ -10,6 +11,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource(collectionOperations:["post"], itemOperations:["get", "put", "delete"], normalizationContext:["groups"=>["read"]], denormalizationContext:["groups"=>["write"]])]
@@ -22,21 +24,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'string', length: 180, unique: true)]
     #[Groups(["read", "write"])]
+    #[Assert\NotBlank()]
+    #[Assert\Email(
+        message: 'The email {{ value }} is not a valid email.',
+    )]
     private $email;
 
     #[ORM\Column(type: 'json')]
     private $roles = [];
 
     #[ORM\Column(type: 'string')]
-    #[Groups(["read", "write"])]
+    // #[Assert\NotBlank]
     private $password;
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Groups(["read", "write"])]
+    #[Assert\NotBlank]
     private $firstname;
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Groups(["read", "write"])]
+    #[Assert\NotBlank]
     private $lastname;
 
     #[ORM\Column(type: 'string', length: 25, nullable: true)]
@@ -67,6 +75,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Groups(["read", "write"])]
     private $job;
+    
+    #[Groups(["write"])]
+    #[Assert\NotBlank]
+    #[SerializedName("password")]
+    private $plainPassword;
 
     public function __construct()
     {
@@ -142,7 +155,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials()
     {
         // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
+        $this->plainPassword = null;
     }
 
     public function getFirstname(): ?string
@@ -315,6 +328,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setJob(?string $job): self
     {
         $this->job = $job;
+
+        return $this;
+    }
+
+    public function getPlainPassword(): ?string
+    {
+        return $this->plainPassword;
+    }
+
+    public function setPlainPassword(?string $plainPassword): self
+    {
+        $this->plainPassword = $plainPassword;
 
         return $this;
     }
