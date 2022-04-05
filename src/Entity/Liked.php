@@ -2,29 +2,28 @@
 
 namespace App\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-use App\Repository\LikeRepository;
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Repository\LikedRepository;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ORM\Entity(repositoryClass: LikeRepository::class)]
-#[ORM\Table(name: '`like`')]
-#[ApiResource(collectionOperations:["get", "post"], itemOperations:["get", "delete"], normalizationContext:["groups"=>["read"]], denormalizationContext:["groups"=>["write"]])]
-class Like
+#[ORM\Entity(repositoryClass: LikedRepository::class)]
+#[ApiResource(collectionOperations:["get", "post"], itemOperations:["get", "delete"], normalizationContext:["groups"=>["like:read"]], denormalizationContext:["groups"=>["like:write"]])]
+class Liked
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private $id;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'likes')]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'likeds')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(["read", "write"])]
+    #[Groups(["like:read", "like:write"])]
     private $user;
 
-    #[ORM\ManyToOne(targetEntity: Message::class, inversedBy: 'likes')]
+    #[ORM\ManyToOne(targetEntity: Message::class, inversedBy: 'likeds')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(["read", "write"])]
+    #[Groups(["like:read", "like:write"])]
     private $message;
 
     public function getId(): ?int

@@ -2,30 +2,30 @@
 
 namespace App\Repository;
 
-use App\Entity\Like;
+use App\Entity\Liked;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method Like|null find($id, $lockMode = null, $lockVersion = null)
- * @method Like|null findOneBy(array $criteria, array $orderBy = null)
- * @method Like[]    findAll()
- * @method Like[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Liked|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Liked|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Liked[]    findAll()
+ * @method Liked[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class LikeRepository extends ServiceEntityRepository
+class LikedRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Like::class);
+        parent::__construct($registry, Liked::class);
     }
 
     /**
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function add(Like $entity, bool $flush = true): void
+    public function add(Liked $entity, bool $flush = true): void
     {
         $this->_em->persist($entity);
         if ($flush) {
@@ -37,7 +37,7 @@ class LikeRepository extends ServiceEntityRepository
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function remove(Like $entity, bool $flush = true): void
+    public function remove(Liked $entity, bool $flush = true): void
     {
         $this->_em->remove($entity);
         if ($flush) {
@@ -46,7 +46,7 @@ class LikeRepository extends ServiceEntityRepository
     }
 
     // /**
-    //  * @return Like[] Returns an array of Like objects
+    //  * @return Liked[] Returns an array of Liked objects
     //  */
     /*
     public function findByExampleField($value)
@@ -63,7 +63,7 @@ class LikeRepository extends ServiceEntityRepository
     */
 
     /*
-    public function findOneBySomeField($value): ?Like
+    public function findOneBySomeField($value): ?Liked
     {
         return $this->createQueryBuilder('l')
             ->andWhere('l.exampleField = :val')

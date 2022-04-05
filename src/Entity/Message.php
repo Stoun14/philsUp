@@ -29,9 +29,6 @@ class Message
     #[Groups(["message:read", "message:write"])]
     private $content;
 
-    #[ORM\OneToMany(mappedBy: 'message', targetEntity: Like::class)]
-    private $likes;
-
     #[ORM\OneToMany(mappedBy: 'message', targetEntity: Comment::class)]
     #[Groups(["message:read"])]
     private $comments;
@@ -61,13 +58,16 @@ class Message
     #[Groups(["message:read", "message:write"])]
     private $title;
 
+    #[ORM\OneToMany(mappedBy: 'message', targetEntity: Liked::class)]
+    private $likeds;
+
     public function __construct()
     {
-        $this->likes = new ArrayCollection();
         $this->comments = new ArrayCollection();
         $this->media = new ArrayCollection();
         $this->create_at = new DateTime();
         $this->count_like = 0;
+        $this->likeds = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -95,36 +95,6 @@ class Message
     public function setContent(string $content): self
     {
         $this->content = $content;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Like>
-     */
-    public function getLikes(): Collection
-    {
-        return $this->likes;
-    }
-
-    public function addLike(Like $like): self
-    {
-        if (!$this->likes->contains($like)) {
-            $this->likes[] = $like;
-            $like->setMessage($this);
-        }
-
-        return $this;
-    }
-
-    public function removeLike(Like $like): self
-    {
-        if ($this->likes->removeElement($like)) {
-            // set the owning side to null (unless already changed)
-            if ($like->getMessage() === $this) {
-                $like->setMessage(null);
-            }
-        }
 
         return $this;
     }
@@ -245,6 +215,36 @@ class Message
     public function setTitle(string $title): self
     {
         $this->title = $title;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Liked>
+     */
+    public function getLikeds(): Collection
+    {
+        return $this->likeds;
+    }
+
+    public function addLiked(Liked $liked): self
+    {
+        if (!$this->likeds->contains($liked)) {
+            $this->likeds[] = $liked;
+            $liked->setMessage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLiked(Liked $liked): self
+    {
+        if ($this->likeds->removeElement($liked)) {
+            // set the owning side to null (unless already changed)
+            if ($liked->getMessage() === $this) {
+                $liked->setMessage(null);
+            }
+        }
 
         return $this;
     }
