@@ -2,29 +2,31 @@
 
 namespace App\Entity;
 
-use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Serializer\Annotation\SerializedName;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use App\Validator\Constraints as AppAssert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ApiResource(collectionOperations:["post"], itemOperations:["get", "put", "delete"], normalizationContext:["groups"=>["read"]], denormalizationContext:["groups"=>["write"]])]
+#[ApiResource(collectionOperations: ["post", "get"], itemOperations: ["get", "patch", "delete"], normalizationContext: ['groups' => ['user:read']], denormalizationContext: ['groups' => ['user:write']])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(["user:read", "message:read", "comment:read"])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 180, unique: true)]
-    #[Groups(["read", "write"])]
-    #[Assert\NotBlank()]
+    #[Groups(["user:read", "user:write"])]
+    #[Assert\NotBlank]
     #[Assert\Email(
         message: 'The email {{ value }} is not a valid email.',
     )]
@@ -34,29 +36,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $roles = [];
 
     #[ORM\Column(type: 'string')]
-    // #[Assert\NotBlank]
     private $password;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(["read", "write"])]
+    #[Groups(["user:read", "user:write", "message:read", "comment:read"])]
     #[Assert\NotBlank]
     private $firstname;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(["read", "write"])]
+    #[Groups(["user:read", "user:write", "message:read", "comment:read"])]
     #[Assert\NotBlank]
     private $lastname;
 
     #[ORM\Column(type: 'string', length: 25, nullable: true)]
-    #[Groups(["read", "write"])]
+    #[Groups(["user:read", "user:write"])]
+    #[AppAssert\Phone]
     private $phone;
 
     #[ORM\Column(type: 'text', nullable: true)]
-    #[Groups(["read", "write"])]
+    #[Groups(["user:read", "user:write"])]
     private $address;
 
     #[ORM\Column(type: 'text', nullable: true)]
-    #[Groups(["read", "write"])]
+    #[Groups(["user:read", "user:write"])]
     private $description;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Like::class)]
@@ -69,15 +71,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $messages;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(["read", "write"])]
+    #[Groups(["user:read", "user:write"])]
     private $avatar;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(["read", "write"])]
+    #[Groups(["user:read", "user:write"])]
     private $job;
-    
-    #[Groups(["write"])]
+
     #[Assert\NotBlank]
+    #[Groups("user:write")]
     #[SerializedName("password")]
     private $plainPassword;
 
@@ -241,7 +243,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeLike(Like $like): self
     {
         if ($this->likes->removeElement($like)) {
-            // set the owning side to null (unless already changed)
+            // set the owning side to null (unless aluser:ready changed)
             if ($like->getUser() === $this) {
                 $like->setUser(null);
             }
@@ -271,7 +273,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeComment(Comment $comment): self
     {
         if ($this->comments->removeElement($comment)) {
-            // set the owning side to null (unless already changed)
+            // set the owning side to null (unless aluser:ready changed)
             if ($comment->getUser() === $this) {
                 $comment->setUser(null);
             }
@@ -301,7 +303,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeMessage(Message $message): self
     {
         if ($this->messages->removeElement($message)) {
-            // set the owning side to null (unless already changed)
+            // set the owning side to null (unless aluser:ready changed)
             if ($message->getUser() === $this) {
                 $message->setUser(null);
             }

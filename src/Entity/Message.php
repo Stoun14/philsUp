@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use DateTime;
+use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\MessageRepository;
 use Doctrine\Common\Collections\Collection;
@@ -11,47 +12,54 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: MessageRepository::class)]
-#[ApiResource(collectionOperations:["get", "post"], itemOperations:["put", "delete"], normalizationContext:["groups"=>["read"]], denormalizationContext:["groups"=>["write"]])]
+#[ApiResource(collectionOperations:["get", "post"], itemOperations:["get", "patch", "delete"], normalizationContext:["groups"=>["message:read"]], denormalizationContext:["groups"=>["message:write"]])]
 class Message
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(["message:read", "comment:read"])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(["read", "write"])]
+    #[Groups(["message:read", "message:write"])]
     private $image;
 
     #[ORM\Column(type: 'text')]
-    #[Groups(["read", "write"])]
+    #[Groups(["message:read", "message:write"])]
     private $content;
 
     #[ORM\OneToMany(mappedBy: 'message', targetEntity: Like::class)]
     private $likes;
 
     #[ORM\OneToMany(mappedBy: 'message', targetEntity: Comment::class)]
+    #[Groups(["message:read"])]
     private $comments;
 
     #[ORM\OneToMany(mappedBy: 'message', targetEntity: Media::class)]
     private $media;
 
     #[ORM\Column(type: 'integer')]
-    #[Groups(["read", "write"])]
+    #[Groups(["message:read", "message:write"])]
     private $count_like;
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(["read"])]
-    private $create_at;
+    #[Groups(["message:read"])]
+    private $created_at;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    #[Groups(["read"])]
+    #[Groups(["message:read"])]
     private $updated_at;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'messages')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(["read", "write"])]
+    #[Groups(["message:read", "message:write"])]
     private $user;
+
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Assert\NotBlank]
+    #[Groups(["message:read", "message:write"])]
+    private $title;
 
     public function __construct()
     {
@@ -193,14 +201,14 @@ class Message
         return $this;
     }
 
-    public function getCreateAt(): ?\DateTimeInterface
+    public function getCreatedAt(): ?\DateTimeInterface
     {
-        return $this->create_at;
+        return $this->created_at;
     }
 
-    public function setCreateAt(\DateTimeInterface $create_at): self
+    public function setCreatedAt(\DateTimeInterface $created_at): self
     {
-        $this->create_at = $create_at;
+        $this->created_at = $created_at;
 
         return $this;
     }
@@ -225,6 +233,18 @@ class Message
     public function setUser(?User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): self
+    {
+        $this->title = $title;
 
         return $this;
     }

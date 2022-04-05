@@ -27,20 +27,25 @@ class UserDataPersister implements ContextAwareDataPersisterInterface
 
     public function persist($data, array $context = [])
     {
-        if ($data->getPlainPassword()) {
-            $data->setPassword(
-                $this->passwordHasher->hashPassword(
-                    $data,
-                    $data->getPlainPassword()
-                )
-            );
+        if ($data->getPlainPassword())
+        {
+            $data->setPassword($this->passwordHasher->hashPassword($data, $data->getPlainPassword()));
 
             $data->eraseCredentials();
         }
 
+        if ($data->getPhone())
+        {
+            $phoneNumberUtil = \libphonenumber\PhoneNumberUtil::getInstance();
+
+            $phoneNumberObject = $phoneNumberUtil->parse($data->getPhone(), 'FR');
+            $data->setPhone($phoneNumberUtil->format($phoneNumberObject, \libphonenumber\PhoneNumberFormat::NATIONAL));
+        }
+        
         $this->entityManager->persist($data);
         $this->entityManager->flush();
     }
+
 
     public function remove($data, array $context = [])
     {

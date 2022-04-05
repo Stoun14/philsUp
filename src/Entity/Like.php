@@ -9,7 +9,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: LikeRepository::class)]
 #[ORM\Table(name: '`like`')]
-#[ApiResource(collectionOperations:["get", "post"], itemOperations:["delete"], normalizationContext:["groups"=>["read"]], denormalizationContext:["groups"=>["write"]])]
+#[ApiResource(collectionOperations:["get", "post"], itemOperations:["get", "delete"], normalizationContext:["groups"=>["read"]], denormalizationContext:["groups"=>["write"]])]
 class Like
 {
     #[ORM\Id]

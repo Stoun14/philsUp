@@ -9,34 +9,35 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
-#[ApiResource(collectionOperations:["get", "post"], itemOperations:["put", "delete"], normalizationContext:["groups"=>["read"]], denormalizationContext:["groups"=>["write"]])]
+#[ApiResource(collectionOperations:["get", "post"], itemOperations:["get", "patch", "delete"], normalizationContext:["groups"=>["comment:read"]], denormalizationContext:["groups"=>["comment:write"]])]
 class Comment
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(["comment:read", "message:read"])]
     private $id;
 
     #[ORM\Column(type: 'text')]
-    #[Groups(["read", "write"])]
+    #[Groups(["comment:read", "comment:write", "message:read"])]
     private $content;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'comments')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(["read", "write"])]
+    #[Groups(["comment:read", "comment:write"])]
     private $user;
 
     #[ORM\ManyToOne(targetEntity: Message::class, inversedBy: 'comments')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(["read", "write"])]
+    #[Groups(["comment:read", "comment:write"])]
     private $message;
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(["read"])]
+    #[Groups(["comment:read", "message:read"])]
     private $created_at;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    #[Groups(["read"])]
+    #[Groups(["comment:read", "message:read"])]
     private $updated_at;
 
     public function __construct()
