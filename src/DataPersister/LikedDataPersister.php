@@ -3,10 +3,11 @@
 namespace App\DataPersister;
 
 use App\Entity\Liked;
+use App\Entity\Message;
 use Doctrine\ORM\EntityManagerInterface;
-use ApiPlatform\Core\DataPersister\ContextAwareDataPersisterInterface;
+use ApiPlatform\Core\DataPersister\DataPersisterInterface;
 
-class LikedDataPersister implements ContextAwareDataPersisterInterface
+class LikedDataPersister implements DataPersisterInterface
 {
     private $entityManager;    
 
@@ -22,7 +23,31 @@ class LikedDataPersister implements ContextAwareDataPersisterInterface
 
     public function persist($data, array $context = [])
     {
-        $this->entityManager->persist($data);
+        $message = $data-> getMessage()->getId();
+        $user = $data-> getUser()->getId();
+
+        $repository = $this->entityManager->getRepository(Liked::class);
+        $liked = $repository->findBy(["message"=>$message, "user"=>$user]);
+
+        if($liked)
+        {
+            foreach ($liked as $like) {
+                $this->entityManager->remove($like);
+            }
+            
+            $repository = $this->entityManager->getRepository(Message::class);
+            $message = $repository->findOneBy(["id"=>$message]);
+            $message->setCountLike($message->getCountLike()-1);
+            $this->entityManager->persist($message);
+        } else {
+            $this->entityManager->persist($data);
+
+            $repository = $this->entityManager->getRepository(Message::class);
+            $message = $repository->findOneBy(["id"=>$message]);
+            $message->setCountLike($message->getCountLike()+1);
+            $this->entityManager->persist($message);
+        }
+        
         $this->entityManager->flush();
     }
 

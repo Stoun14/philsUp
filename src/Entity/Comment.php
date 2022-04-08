@@ -9,7 +9,7 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
-#[ApiResource(collectionOperations:["get", "post"], itemOperations:["get", "patch", "delete"], normalizationContext:["groups"=>["comment:read"]], denormalizationContext:["groups"=>["comment:write"]])]
+#[ApiResource(collectionOperations:["get", "post"], itemOperations:["get", "delete"], normalizationContext:["groups"=>["comment:read"]], denormalizationContext:["groups"=>["comment:write"]])]
 class Comment
 {
     #[ORM\Id]

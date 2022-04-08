@@ -10,9 +10,12 @@ use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 #[ORM\Entity(repositoryClass: MessageRepository::class)]
-#[ApiResource(collectionOperations:["get", "post"], itemOperations:["get", "patch", "delete"], normalizationContext:["groups"=>["message:read"]], denormalizationContext:["groups"=>["message:write"]])]
+#[ApiResource(collectionOperations:["get", "post"], itemOperations:["get", "patch"], normalizationContext:["groups"=>["message:read"]], denormalizationContext:["groups"=>["message:write"]])]
+#[ApiFilter(SearchFilter::class, properties: ['message' => 'exact'])]
 class Message
 {
     #[ORM\Id]
@@ -61,12 +64,17 @@ class Message
     #[ORM\OneToMany(mappedBy: 'message', targetEntity: Liked::class)]
     private $likeds;
 
+    #[ORM\Column(type: 'integer')]
+    #[Groups(["message:read", "message:write"])]
+    private $count_comment;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
         $this->media = new ArrayCollection();
         $this->create_at = new DateTime();
         $this->count_like = 0;
+        $this->count_comment = 0;
         $this->likeds = new ArrayCollection();
     }
 
@@ -245,6 +253,18 @@ class Message
                 $liked->setMessage(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCountComment(): ?int
+    {
+        return $this->count_comment;
+    }
+
+    public function setCountComment(int $count_comment): self
+    {
+        $this->count_comment = $count_comment;
 
         return $this;
     }

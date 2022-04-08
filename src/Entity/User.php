@@ -65,6 +65,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $comments;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Message::class)]
+    #[Groups(["user:read", "user:write"])]
     private $messages;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
